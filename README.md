@@ -275,3 +275,8 @@ web/src/                               index.html, privacy.html, admin/, app/ (M
 scripts/                               backup.sh, smoke.sh
 docker-compose.yml
 ```
+
+
+## Лицензия
+
+© 2026 Сандыга Иван. Все права защищены. Код открыт только для ознакомления как пример работы — использование, копирование и изменение без письменного разрешения запрещены. Подробности — в [LICENSE](LICENSE). По вопросам сотрудничества: [sandigavanya@mail.ru](mailto:sandigavanya@mail.ru).
