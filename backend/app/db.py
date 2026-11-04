@@ -20,7 +20,8 @@ END $$;
 """
 
 
-async def init_db(target: AsyncEngine = engine) -> None:
+async def init_db(target: AsyncEngine | None = None) -> None:
+    target = target or engine
     async with target.begin() as conn:
         if target.dialect.name == "postgresql":
             await conn.execute(text("CREATE EXTENSION IF NOT EXISTS btree_gist"))

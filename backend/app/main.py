@@ -1,10 +1,11 @@
+import asyncio
 import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
-from . import db
+from . import db, demo
 from .config import get_settings
 from .media import upload_dir
 from .routers import admin, admin_clients, admin_masters, admin_reviews, public, tg_app
@@ -18,7 +19,14 @@ async def lifespan(_: FastAPI):
     await db.init_db()
     async with db.SessionLocal() as session:
         await seed(session)
+    task = None
+    if demo.enabled():
+        logging.getLogger(__name__).warning("DEMO_MODE: база будет сбрасываться каждую ночь")
+        await demo.ensure_demo()
+        task = asyncio.create_task(demo.demo_loop())
     yield
+    if task:
+        task.cancel()
 
 
 app = FastAPI(title="Fade & Blade API", lifespan=lifespan, docs_url="/api/docs", openapi_url="/api/openapi.json")

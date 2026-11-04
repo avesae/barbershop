@@ -30,6 +30,8 @@ async def info() -> dict:
         "bot_username": s.bot_username,
         "consent_version": CONSENT_VERSION,
         "consent_text": consent_text(),
+        # В демо подсказываем вход в админку — это витрина, а не настоящий барбершоп.
+        "demo": {"user": s.admin_user, "password": s.admin_password} if s.demo_mode else None,
     }
 
 

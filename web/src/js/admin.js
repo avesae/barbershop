@@ -426,7 +426,7 @@ async function loadReviews() {
           el("span", { class: "ml-3 text-xs text-mute" }, `${fmtDate(r.created_at)} · ${r.author} · ${r.master} · ${r.service}`)),
         el("p", { class: `mt-2 ${r.text ? "" : "text-mute"}` }, r.text || "Без комментария"),
         r.client_id ? el("button", { class: "mt-2 text-xs text-mute hover:text-cream", onclick: () => openClient(r.client_id) }, "Карточка клиента →") : null),
-      r.published ? el("span", { class: "rounded-full bg-brass/15 px-3 py-1 text-xs text-brass" }, "на сайте") : null,
+      r.published ? el("span", { class: "self-center whitespace-nowrap rounded-full bg-brass/15 px-3 py-1 text-xs leading-none text-brass" }, "на сайте") : null,
       el("div", { class: "flex items-center gap-3" }, low ? null : toggle,
         el("button", { class: "text-sm text-mute hover:text-blood", onclick: async () => { if (confirm("Удалить отзыв?")) { await api(`/reviews/${r.id}`, { method: "DELETE" }); loadReviews(); } } }, "Удалить")),
     );
@@ -609,3 +609,13 @@ let searchTimer;
 $("#c-search").addEventListener("input", () => { clearTimeout(searchTimer); searchTimer = setTimeout(loadClients, 250); });
 
 if (store.auth) api("/check").then(start).catch(logout);
+
+// Демо-витрина: подсказываем логин и подставляем его в форму.
+fetch("/api/info").then((r) => r.json()).then(({ demo }) => {
+  if (!demo) return;
+  const f = $("#login-form");
+  f.user.value = demo.user;
+  f.password.value = demo.password;
+  $("#demo-hint").textContent = `Демо-доступ: ${demo.user} / ${demo.password}. Данные сбрасываются каждую ночь.`;
+  $("#demo-hint").classList.remove("hidden");
+}).catch(() => {});

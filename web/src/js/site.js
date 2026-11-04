@@ -235,6 +235,7 @@ async function init() {
     const phone = $('[data-info="phone"]');
     phone.textContent = info.phone;
     phone.href = `tel:${info.phone.replace(/[^\d+]/g, "")}`;
+    if (info.demo) $("[data-demo-admin]").classList.remove("hidden");
     if (info.bot_username) {
       document.querySelectorAll("[data-bot-link]").forEach((a) => {
         a.href = `https://t.me/${info.bot_username}`;
