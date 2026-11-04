@@ -1,10 +1,12 @@
 import os
+import tempfile
 from datetime import datetime
 
 os.environ["DATABASE_URL"] = "sqlite+aiosqlite://"
 os.environ["BOT_TOKEN"] = ""
 os.environ["ADMIN_USER"] = "admin"
 os.environ["ADMIN_PASSWORD"] = "secret"
+os.environ["UPLOAD_DIR"] = tempfile.mkdtemp(prefix="barber-uploads-")
 
 import pytest
 from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine

@@ -35,8 +35,11 @@
         <nav id="tabs" class="flex flex-wrap gap-1 text-sm">
           <button data-tab="schedule" class="tab">Расписание</button>
           <button data-tab="bookings" class="tab">Записи</button>
+          <button data-tab="clients" class="tab">Клиенты</button>
           <button data-tab="timeoff" class="tab">Закрыть время</button>
+          <button data-tab="masters" class="tab">Мастера</button>
           <button data-tab="services" class="tab">Услуги и цены</button>
+          <button data-tab="works" class="tab">Галерея</button>
           <button data-tab="stats" class="tab">Статистика</button>
         </nav>
         <button id="logout" class="ml-auto text-sm text-mute hover:text-cream">Выйти</button>
@@ -84,6 +87,22 @@
         </div>
       </section>
 
+      <!-- Клиенты -->
+      <section data-panel="clients" class="hidden">
+        <div class="mb-6 flex flex-wrap items-center gap-3">
+          <h1 class="mr-4 font-display text-2xl font-bold">Клиенты</h1>
+          <input id="c-search" type="search" class="field !w-72 !py-2" placeholder="Имя или телефон">
+        </div>
+        <div class="overflow-x-auto rounded-2xl border border-line">
+          <table class="w-full text-sm">
+            <thead class="bg-coal text-left text-xs uppercase tracking-wider text-mute">
+              <tr><th class="p-3">Клиент</th><th class="p-3">Визитов</th><th class="p-3">Потратил</th><th class="p-3">Последний</th><th class="p-3">Следующий</th><th class="p-3">Неявки</th></tr>
+            </thead>
+            <tbody id="clients-body" class="divide-y divide-line"></tbody>
+          </table>
+        </div>
+      </section>
+
       <!-- Закрытое время -->
       <section data-panel="timeoff" class="hidden">
         <h1 class="mb-6 font-display text-2xl font-bold">Закрыть время</h1>
@@ -104,6 +123,30 @@
         </div>
       </section>
 
+      <!-- Мастера -->
+      <section data-panel="masters" class="hidden">
+        <div class="mb-6 flex items-center justify-between">
+          <h1 class="font-display text-2xl font-bold">Мастера и график</h1>
+          <button id="add-master" class="btn-brass !py-2">+ Добавить мастера</button>
+        </div>
+        <div id="masters-body" class="grid gap-4 md:grid-cols-2"></div>
+      </section>
+
+      <!-- Галерея -->
+      <section data-panel="works" class="hidden">
+        <div class="mb-6 flex flex-wrap items-center justify-between gap-3">
+          <h1 class="font-display text-2xl font-bold">Галерея работ</h1>
+          <form id="work-form" class="flex flex-wrap items-center gap-2">
+            <input type="file" name="file" accept="image/*" required class="text-sm text-mute file:mr-3 file:rounded-full file:border-0 file:bg-smoke file:px-4 file:py-2 file:text-cream">
+            <select name="master_id" class="field !w-auto !py-2"></select>
+            <input name="caption" class="field !w-48 !py-2" placeholder="Подпись" maxlength="200">
+            <button class="btn-brass !py-2">Загрузить</button>
+          </form>
+        </div>
+        <p id="work-error" class="mb-4 hidden text-sm text-blood"></p>
+        <div id="works-body" class="grid grid-cols-2 gap-4 md:grid-cols-4"></div>
+      </section>
+
       <!-- Услуги -->
       <section data-panel="services" class="hidden">
         <div class="mb-6 flex items-center justify-between">
@@ -115,23 +158,72 @@
 
       <!-- Статистика -->
       <section data-panel="stats" class="hidden">
-        <h1 class="mb-6 font-display text-2xl font-bold">Статистика</h1>
-        <div id="stats-kpi" class="mb-8 grid gap-4 sm:grid-cols-3"></div>
+        <div class="mb-6 flex flex-wrap items-center gap-3">
+          <h1 class="mr-4 font-display text-2xl font-bold">Статистика</h1>
+          <div class="flex rounded-full border border-line p-1 text-sm">
+            <button class="seg rounded-full px-4 py-1.5" data-period="7">7 дней</button>
+            <button class="seg rounded-full px-4 py-1.5" data-period="30">30 дней</button>
+          </div>
+        </div>
+        <div id="stats-kpi" class="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"></div>
         <div class="grid gap-6 lg:grid-cols-2">
-          <div class="rounded-3xl border border-line bg-coal p-6">
-            <p class="mb-1 font-semibold">Записи за неделю</p>
+          <div class="rounded-3xl border border-line bg-coal p-6 lg:col-span-2">
+            <p class="mb-1 font-semibold">Записи по дням</p>
             <p class="mb-6 text-xs text-mute">По дню визита, без отменённых</p>
-            <div id="stats-week" class="flex h-56 items-end gap-3"></div>
+            <div id="stats-week" class="flex h-56 items-end gap-1.5"></div>
           </div>
           <div class="rounded-3xl border border-line bg-coal p-6">
-            <p class="mb-1 font-semibold">Популярность услуг</p>
-            <p class="mb-6 text-xs text-mute">За 30 дней</p>
+            <p class="mb-6 font-semibold">Мастера</p>
+            <div id="stats-masters" class="space-y-5"></div>
+          </div>
+          <div class="rounded-3xl border border-line bg-coal p-6">
+            <p class="mb-6 font-semibold">Популярность услуг</p>
             <div id="stats-services" class="space-y-3"></div>
           </div>
         </div>
       </section>
     </main>
   </div>
+
+  <!-- Карточка клиента -->
+  <dialog id="client-dialog" class="m-auto w-[min(720px,calc(100%-2rem))] rounded-3xl border border-line bg-ink p-0 text-cream backdrop:bg-black/70">
+    <div class="flex items-center justify-between border-b border-line px-6 py-4">
+      <p class="font-display text-lg font-bold" id="client-title">Клиент</p>
+      <button class="text-2xl leading-none text-mute hover:text-cream" onclick="this.closest('dialog').close()" aria-label="Закрыть">×</button>
+    </div>
+    <div id="client-body" class="max-h-[75vh] space-y-6 overflow-y-auto p-6"></div>
+  </dialog>
+
+  <!-- Редактор мастера -->
+  <dialog id="master-dialog" class="m-auto w-[min(640px,calc(100%-2rem))] rounded-3xl border border-line bg-ink p-0 text-cream backdrop:bg-black/70">
+    <form id="master-form" class="max-h-[85vh] space-y-4 overflow-y-auto p-6">
+      <p class="font-display text-lg font-bold" id="master-title">Мастер</p>
+      <div class="flex items-center gap-4">
+        <img id="master-photo-preview" class="hidden size-20 rounded-full object-cover" alt="">
+        <label class="btn-ghost !py-2 cursor-pointer">Фото<input type="file" accept="image/*" id="master-photo-file" class="hidden"></label>
+        <button type="button" id="master-photo-remove" class="hidden text-sm text-mute hover:text-blood">Убрать</button>
+      </div>
+      <div class="grid gap-3 sm:grid-cols-2">
+        <input name="name" class="field" placeholder="Имя" required maxlength="100">
+        <input name="title" class="field" placeholder="Должность" maxlength="100">
+      </div>
+      <textarea name="bio" class="field" rows="2" placeholder="Пара слов о мастере"></textarea>
+      <div>
+        <p class="mb-2 text-xs text-mute">Услуги</p>
+        <div id="master-services" class="flex flex-wrap gap-3 text-sm"></div>
+      </div>
+      <div>
+        <p class="mb-2 text-xs text-mute">График (пустой день — выходной; перерыв — два интервала)</p>
+        <div id="master-hours" class="space-y-2"></div>
+      </div>
+      <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="is_active" class="accent-[#c9a266]"> Принимает записи</label>
+      <p id="master-error" class="hidden text-sm text-blood"></p>
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" class="btn-ghost !py-2" onclick="this.closest('dialog').close()">Отмена</button>
+        <button class="btn-brass !py-2">Сохранить</button>
+      </div>
+    </form>
+  </dialog>
 
   <!-- Редактор услуги -->
   <dialog id="service-dialog" class="m-auto w-[min(520px,calc(100%-2rem))] rounded-3xl border border-line bg-ink p-0 text-cream backdrop:bg-black/70">
@@ -143,6 +235,7 @@
         <label class="text-xs text-mute">Цена, ₽<input name="price" type="number" min="0" step="50" class="field mt-1" required></label>
         <label class="text-xs text-mute">Длительность, мин<input name="duration_min" type="number" min="15" max="480" step="15" class="field mt-1" required></label>
       </div>
+      <label class="block text-xs text-mute">Предложить повторную запись через, дней<input name="rebook_days" type="number" min="0" max="365" class="field mt-1"></label>
       <div>
         <p class="mb-2 text-xs text-mute">Мастера</p>
         <div id="service-masters" class="flex flex-wrap gap-3 text-sm"></div>

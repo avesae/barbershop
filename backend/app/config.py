@@ -28,6 +28,9 @@ class Settings(BaseSettings):
     min_lead_min: int = 60
     reminder_check_sec: int = 60
 
+    # Загруженные фото мастеров и работ.
+    upload_dir: str = "./uploads"
+
     # Только для локального запуска без Docker: API сам раздаёт собранную статику.
     static_dir: str = ""
 

@@ -8,7 +8,7 @@ from .. import booking as bk
 from ..config import get_settings
 from ..consent import CONSENT_VERSION, consent_text
 from ..deps import get_session
-from ..models import Master, Service
+from ..models import Master, Review, Service, Work
 from ..notify import booking_summary, notify_owner
 from ..schemas import BookingCreated, BookingIn, MasterOut, ServiceOut
 
@@ -48,6 +48,24 @@ async def masters(session: AsyncSession = Depends(get_session)):
     return [
         MasterOut.model_validate(m).model_copy(update={"service_ids": sorted(s.id for s in m.services if s.is_active)})
         for m in rows.scalars()
+    ]
+
+
+@router.get("/works")
+async def works(session: AsyncSession = Depends(get_session)) -> list[dict]:
+    rows = await session.execute(select(Work).order_by(Work.id.desc()).limit(12))
+    return [{"photo": w.photo, "caption": w.caption} for w in rows.scalars()]
+
+
+@router.get("/reviews")
+async def reviews(session: AsyncSession = Depends(get_session)) -> list[dict]:
+    rows = await session.execute(
+        select(Review).where(Review.published).order_by(Review.created_at.desc()).limit(9)
+    )
+    return [
+        {"rating": r.rating, "text": r.text, "author": r.author, "master": r.master.name,
+         "date": r.created_at.date().isoformat()}
+        for r in rows.scalars()
     ]
 
 

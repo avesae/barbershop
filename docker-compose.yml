@@ -21,6 +21,8 @@ services:
     env_file: .env
     environment:
       DATABASE_URL: postgresql+asyncpg://barber:${POSTGRES_PASSWORD}@db:5432/barber
+    volumes:
+      - uploads:/data/uploads
     depends_on:
       db:
         condition: service_healthy
@@ -52,3 +54,4 @@ services:
 
 volumes:
   pgdata:
+  uploads:

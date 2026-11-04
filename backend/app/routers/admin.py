@@ -2,11 +2,13 @@ from collections import Counter
 from datetime import date, datetime, time, timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, Query
+from pydantic import BaseModel, Field
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 
 from .. import booking as bk
+from .. import stats as st
 from ..deps import get_session, require_admin
 from ..models import Booking, Master, Service, TimeOff
 from ..notify import booking_summary, send
@@ -32,10 +34,14 @@ def _admin_booking(b: Booking) -> AdminBooking:
     )
 
 
-async def _bookings(session: AsyncSession, start: datetime, end: datetime, status: str | None = None):
+async def _bookings(
+    session: AsyncSession, start: datetime, end: datetime, status: str | None = None, *, cancelled: bool = True
+):
     q = select(Booking).where(Booking.start_at >= start, Booking.start_at < end).order_by(Booking.start_at)
     if status:
         q = q.where(Booking.status == status)
+    if not cancelled:
+        q = q.where(Booking.status != "cancelled")
     return list((await session.execute(q)).scalars())
 
 
@@ -68,7 +74,7 @@ async def schedule(
             }
             for m in masters
         ],
-        "bookings": [_admin_booking(b) for b in await _bookings(session, start, end, "active")],
+        "bookings": [_admin_booking(b) for b in await _bookings(session, start, end, cancelled=False)],
         "time_off": [TimeOffOut.model_validate(t) for t in off.scalars()],
     }
 
@@ -100,17 +106,27 @@ async def cancel(booking_id: int, session: AsyncSession = Depends(get_session)):
     return _admin_booking(b)
 
 
+class StatusIn(BaseModel):
+    status: str = Field(pattern="^(active|done|no_show)$")
+
+
+@router.post("/bookings/{booking_id}/status", response_model=AdminBooking)
+async def set_status(booking_id: int, data: StatusIn, session: AsyncSession = Depends(get_session)):
+    b = await bk.get_booking(session, booking_id)
+    if not b:
+        raise HTTPException(404, "Запись не найдена")
+    try:
+        await bk.set_visit_status(session, b, data.status)
+    except bk.BookingError as e:
+        raise HTTPException(400, str(e))
+    return _admin_booking(b)
+
+
 # --- услуги --------------------------------------------------------------
 
 
 def _service_out(s: Service) -> ServiceOut:
     return ServiceOut.model_validate(s).model_copy(update={"master_ids": sorted(m.id for m in s.masters)})
-
-
-@router.get("/masters")
-async def masters(session: AsyncSession = Depends(get_session)) -> list[dict]:
-    rows = await session.execute(select(Master).order_by(Master.id))
-    return [{"id": m.id, "name": m.name, "is_active": m.is_active} for m in rows.scalars()]
 
 
 @router.get("/services", response_model=list[ServiceOut])
@@ -123,7 +139,7 @@ async def _apply(session: AsyncSession, s: Service, data: ServiceIn) -> Service:
     q = select(Master).where(Master.id.in_(data.master_ids)).options(selectinload(Master.services))
     masters = list((await session.execute(q)).scalars())
     s.name, s.description, s.price = data.name, data.description, data.price
-    s.duration_min, s.is_active = data.duration_min, data.is_active
+    s.duration_min, s.is_active, s.rebook_days = data.duration_min, data.is_active, data.rebook_days
     s.masters = masters
     session.add(s)
     await session.commit()
@@ -182,26 +198,45 @@ async def delete_time_off(time_off_id: int, session: AsyncSession = Depends(get_
 
 
 @router.get("/stats")
-async def stats(session: AsyncSession = Depends(get_session)) -> dict:
-    today = bk.now_local().date()
-    week_start = datetime.combine(today - timedelta(days=6), time.min)
-    week_end = datetime.combine(today + timedelta(days=1), time.min)
-    week = await _bookings(session, week_start, week_end)
-    active = [b for b in week if b.status == "active"]
-    per_day = Counter(b.start_at.date() for b in active)
+async def stats(days: int = Query(7, ge=7, le=90), session: AsyncSession = Depends(get_session)) -> dict:
+    now = bk.now_local()
+    today = now.date()
+    first = today - timedelta(days=days - 1)
+    start, end = datetime.combine(first, time.min), datetime.combine(today + timedelta(days=1), time.min)
+    bookings = await _bookings(session, start, end)
+    rows = [
+        st.BookingRow(b.master.name, b.service.name, b.source, b.status, b.start_at, b.end_at, b.price)
+        for b in bookings
+    ]
+    live = [b for b in bookings if b.status != "cancelled"]
+    per_day = Counter(b.start_at.date() for b in live)
 
-    month = await _bookings(session, week_end - timedelta(days=30), week_end, "active")
-    popular = Counter(b.service.name for b in month)
-    by_master = Counter(b.master.name for b in active)
+    masters = list((await session.execute(select(Master).where(Master.is_active).order_by(Master.id))).scalars())
+    off = list((await session.execute(select(TimeOff).where(TimeOff.start_at < end, TimeOff.end_at > start))).scalars())
+    by_master = []
+    for m in masters:
+        mine = [r for r, b in zip(rows, bookings) if b.master_id == m.id]
+        work = st.working_minutes(
+            [(w.weekday, w.start, w.end) for w in m.working_hours],
+            [(t.start_at, t.end_at) for t in off if t.master_id == m.id],
+            first,
+            days,
+        )
+        booked = sum(int((r.end_at - r.start_at).total_seconds() // 60) for r in mine if r.status != "cancelled")
+        summary = st.summarize(mine, now)
+        by_master.append({
+            "name": m.name,
+            "bookings": summary["total"],
+            "revenue": summary["revenue"],
+            "no_show": summary["no_show"],
+            "load": st.master_load(booked, work),
+        })
 
     return {
-        "week": [
-            {"day": (today - timedelta(days=i)).isoformat(), "count": per_day[today - timedelta(days=i)]}
-            for i in range(6, -1, -1)
-        ],
-        "week_total": len(active),
-        "week_cancelled": len(week) - len(active),
-        "week_revenue": sum(b.price for b in active),
-        "services_30d": [{"name": n, "count": c} for n, c in popular.most_common()],
-        "masters_week": [{"name": n, "count": c} for n, c in by_master.most_common()],
+        "days": days,
+        "per_day": [{"day": (first + timedelta(days=i)).isoformat(), "count": per_day[first + timedelta(days=i)]}
+                    for i in range(days)],
+        "summary": st.summarize(rows, now),
+        "services": [{"name": n, "count": c} for n, c in Counter(b.service.name for b in live).most_common()],
+        "masters": by_master,
     }

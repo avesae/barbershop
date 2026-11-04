@@ -9,7 +9,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY app ./app
 COPY bot ./bot
 
-RUN useradd --create-home appuser
+ENV UPLOAD_DIR=/data/uploads
+RUN useradd --create-home appuser && mkdir -p /data/uploads && chown -R appuser /data
 USER appuser
 
 EXPOSE 8000

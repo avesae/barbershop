@@ -75,7 +75,7 @@ async def test_admin_flow(client):
     assert r.json()["price"] == 1100 and r.json()["master_ids"] == [1, 2]
 
     stats = (await client.get("/api/admin/stats", auth=AUTH)).json()
-    assert stats["week_total"] == 1 and stats["services_30d"][0]["name"] == "Мужская стрижка"
+    assert stats["summary"]["total"] == 1 and stats["services"][0]["name"] == "Мужская стрижка"
 
     r = await client.post(f"/api/admin/bookings/{booking['id']}/cancel", auth=AUTH)
     assert r.json()["status"] == "cancelled"

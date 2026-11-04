@@ -14,6 +14,7 @@ class ServiceOut(ORM):
     price: int
     duration_min: int
     is_active: bool
+    rebook_days: int = 28
     master_ids: list[int] = []
 
 
@@ -22,6 +23,7 @@ class MasterOut(ORM):
     name: str
     title: str
     bio: str
+    photo: str | None
     service_ids: list[int] = []
 
 
@@ -46,6 +48,7 @@ class ServiceIn(BaseModel):
     price: int = Field(ge=0)
     duration_min: int = Field(ge=15, le=480)
     is_active: bool = True
+    rebook_days: int = Field(default=28, ge=0, le=365)
     master_ids: list[int] = []
 
 

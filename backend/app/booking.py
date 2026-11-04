@@ -13,7 +13,7 @@ from sqlalchemy.orm import selectinload
 from . import reminders
 from .config import get_settings
 from .consent import CONSENT_VERSION
-from .models import Booking, Client, Consent, Master, Service, TimeOff, WorkingHours
+from .models import Booking, Client, Consent, Master, Review, Service, TimeOff, WaitlistEntry, WorkingHours
 from .slots import Interval, free_slots
 
 
@@ -209,6 +209,8 @@ async def delete_client_data(session: AsyncSession, client: Client) -> int:
         update(Booking).where(Booking.client_id == client.id).values(client_id=None, link_code=None)
     )
     await session.execute(delete(Consent).where(Consent.client_id == client.id))
+    await session.execute(delete(Review).where(Review.client_id == client.id))
+    await session.execute(delete(WaitlistEntry).where(WaitlistEntry.client_id == client.id))
     await session.delete(client)
     await session.commit()
     return cancelled.rowcount or 0
@@ -293,6 +295,17 @@ async def cancel_booking(session: AsyncSession, booking: Booking) -> Booking:
     if booking.status != "active":
         raise BookingError("Запись уже отменена")
     booking.status = "cancelled"
+    await session.commit()
+    return booking
+
+
+async def set_visit_status(session: AsyncSession, booking: Booking, status: str) -> Booking:
+    """Отметка «пришёл» / «не пришёл» (или сброс отметки) для начавшейся записи."""
+    if booking.status == "cancelled":
+        raise BookingError("Запись отменена")
+    if booking.start_at > now_local():
+        raise BookingError("Визит ещё не начался")
+    booking.status = status
     await session.commit()
     return booking
 

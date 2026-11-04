@@ -48,7 +48,9 @@ function renderCatalog() {
   masters.replaceChildren();
   for (const m of state.masters) {
     const card = el("article", { class: "flex flex-col rounded-3xl border border-line bg-ink p-6" });
-    const avatar = el("div", { class: "mb-6 grid size-20 place-items-center rounded-full border border-brass/50 bg-brass/10 font-display text-3xl text-brass" }, initials(m.name));
+    const avatar = m.photo
+      ? el("img", { src: m.photo, alt: m.name, loading: "lazy", class: "mb-6 size-20 rounded-full border border-brass/50 object-cover" })
+      : el("div", { class: "mb-6 grid size-20 place-items-center rounded-full border border-brass/50 bg-brass/10 font-display text-3xl text-brass" }, initials(m.name));
     const btn = el("button", { class: "btn-ghost mt-6 self-start !py-2 !px-4" }, "Записаться");
     btn.addEventListener("click", () => openBooking({ master: m.id }));
     card.append(
@@ -61,6 +63,33 @@ function renderCatalog() {
     masters.append(card);
   }
   $("[data-count-masters]").textContent = state.masters.length;
+}
+
+function renderWorks(works) {
+  if (!works.length) return;
+  $("#works-list").replaceChildren(...works.map((w) => {
+    const fig = el("figure", { class: "group relative overflow-hidden rounded-2xl" });
+    fig.append(el("img", { src: w.photo, alt: w.caption || "Работа барбера", loading: "lazy", class: "aspect-[4/5] w-full object-cover transition duration-500 group-hover:scale-105" }));
+    if (w.caption) fig.append(el("figcaption", { class: "absolute inset-x-0 bottom-0 bg-gradient-to-t from-ink/90 p-3 text-sm" }, w.caption));
+    return fig;
+  }));
+  $("#works").classList.remove("hidden");
+}
+
+function renderReviews(reviews) {
+  if (!reviews.length) return;
+  $("#reviews-list").replaceChildren(...reviews.map((r) => {
+    const card = el("figure", { class: "flex flex-col rounded-3xl border border-line bg-ink p-6" });
+    card.append(
+      el("p", { class: "mb-4 text-brass", "aria-label": `Оценка ${r.rating} из 5` }, "★".repeat(r.rating) + "☆".repeat(5 - r.rating)),
+      el("blockquote", { class: "flex-1 text-cream/90" }, r.text),
+      el("figcaption", { class: "mt-5 text-sm text-mute" }, `${r.author} · мастер ${r.master}`),
+    );
+    return card;
+  }));
+  const avg = reviews.reduce((a, r) => a + r.rating, 0) / reviews.length;
+  $("#reviews-avg").textContent = `Средняя оценка ${avg.toFixed(1)} из 5`;
+  $("#reviews").classList.remove("hidden");
 }
 
 function chips(container, items, selected, onPick) {
@@ -195,9 +224,13 @@ async function init() {
   document.querySelectorAll("[data-book]").forEach((b) => b.addEventListener("click", () => openBooking()));
   $("#contact-form").addEventListener("submit", submit);
   try {
-    const [services, masters, info] = await Promise.all([api("/services"), api("/masters"), api("/info")]);
+    const [services, masters, info, works, reviews] = await Promise.all([
+      api("/services"), api("/masters"), api("/info"), api("/works"), api("/reviews"),
+    ]);
     Object.assign(state, { services, masters });
     renderCatalog();
+    renderWorks(works);
+    renderReviews(reviews);
     $('[data-info="address"]').textContent = info.address;
     const phone = $('[data-info="phone"]');
     phone.textContent = info.phone;
