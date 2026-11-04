@@ -39,7 +39,7 @@ async def _bookings_by_client(session: AsyncSession, client_ids: list[int]) -> d
 
 @router.get("")
 async def clients(q: str = "", session: AsyncSession = Depends(get_session)) -> list[dict]:
-    query = select(Client).where(Client.phone.is_not(None)).order_by(Client.id.desc()).limit(200)
+    query = select(Client).where(Client.phone.is_not(None)).order_by(Client.id.desc()).limit(500)
     if q.strip():
         like = f"%{q.strip()}%"
         digits = "".join(ch for ch in q if ch.isdigit())
@@ -50,11 +50,13 @@ async def clients(q: str = "", session: AsyncSession = Depends(get_session)) -> 
     items = list((await session.execute(query)).scalars())
     by_client = await _bookings_by_client(session, [c.id for c in items])
     now = bk.now_local()
-    return [
+    rows = [
         {"id": c.id, "name": c.name, "phone": c.phone, "telegram": c.tg_user_id is not None,
          **_metrics(by_client[c.id], now)}
         for c in items
     ]
+    # Сверху — те, кто был недавно или скоро придёт.
+    return sorted(rows, key=lambda r: r["next_visit"] or r["last_visit"] or datetime.min, reverse=True)
 
 
 @router.get("/{client_id}")

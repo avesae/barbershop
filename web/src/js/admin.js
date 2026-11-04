@@ -151,12 +151,15 @@ function dayGrid(data, iso) {
       const a = minutes(b.start_at), z = minutes(b.end_at);
       const tone = b.status === "no_show" ? "border-blood bg-blood/15" : b.status === "done" ? "border-mute bg-smoke" : "border-brass bg-brass/15";
       col.append(el("div", {
-        class: `absolute inset-x-1 overflow-hidden rounded-lg border-l-4 ${tone} p-2 text-xs`,
+        class: `absolute inset-x-1 overflow-hidden rounded-lg border-l-4 ${tone} ${z - a <= 30 ? "px-2 py-1.5" : "p-2"} text-xs`,
         style: `top:${top(a) + 1}px;height:${top(z) - top(a) - 2}px`,
         title: `${b.client_name ?? "—"} ${b.client_phone ?? ""}`,
       },
-        el("p", { class: "font-semibold text-cream" }, `${hhmm(b.start_at)} ${b.service}`),
-        el("p", { class: "text-mute" }, `${b.client_name ?? "данные удалены"} · ${b.client_phone ?? ""}`),
+        ...(z - a <= 30
+          // Короткая запись — одна строка, чтобы текст не обрезался.
+          ? [el("p", { class: "truncate text-cream" }, el("b", {}, `${hhmm(b.start_at)} ${b.service}`), ` · ${b.client_name ?? "—"}`)]
+          : [el("p", { class: "font-semibold text-cream" }, `${hhmm(b.start_at)} ${b.service}`),
+             el("p", { class: "text-mute" }, `${b.client_name ?? "данные удалены"} · ${b.client_phone ?? ""}`)]),
       ));
     }
     return el("div", { class: "min-w-44 flex-1" }, el("p", { class: "mb-2 text-center text-sm font-semibold" }, m.name), col);

@@ -51,9 +51,12 @@ async def seed_demo(session: AsyncSession, now: datetime | None = None, *, rng_s
     masters = list((await session.execute(select(Master).order_by(Master.id))).scalars())
     services = list((await session.execute(select(Service).order_by(Service.id))).scalars())
 
+    # ~200 клиентов: постоянный клиент ходит раз в 3–5 недель, как в жизни.
     clients = []
-    for i, name in enumerate(NAMES):
-        c = Client(name=name, phone=_phone(rng), notes=rng.choice(NOTES), created_at=now - timedelta(days=60))
+    for i in range(200):
+        name = f"{rng.choice(NAMES)} {rng.choice('АБВГДЕЖЗИКЛМНОПРСТУФХЧШ')}."
+        c = Client(name=name, phone=_phone(rng), notes=rng.choice(NOTES) if rng.random() < 0.3 else "",
+                   created_at=now - timedelta(days=rng.randint(31, 365)))
         session.add(c)
         clients.append(c)
     await session.flush()
@@ -95,8 +98,10 @@ async def seed_demo(session: AsyncSession, now: datetime | None = None, *, rng_s
                 roll = rng.random()
                 status = ("cancelled" if roll < 0.07 else "no_show" if roll < 0.11 else "done") if past else (
                     "cancelled" if roll < 0.05 else "active")
+                # Ядро постоянных клиентов записывается чаще остальных.
+                regular = rng.random() < 0.6
                 session.add(Booking(
-                    client_id=rng.choice(clients).id, master_id=m.id, service_id=service.id,
+                    client_id=(rng.choice(clients[:60]) if regular else rng.choice(clients)).id, master_id=m.id, service_id=service.id,
                     start_at=start, end_at=end, price=service.price, status=status,
                     source="bot" if rng.random() < 0.62 else "site",
                     reminded_24h=past, reminded_2h=past, review_asked=past, rebook_offered=past,
