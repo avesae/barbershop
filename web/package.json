@@ -1,0 +1,13 @@
+{
+  "name": "fade-and-blade-web",
+  "private": true,
+  "scripts": {
+    "build": "node build.mjs"
+  },
+  "devDependencies": {
+    "@fontsource-variable/manrope": "5.2.8",
+    "@fontsource-variable/unbounded": "5.2.8",
+    "@tailwindcss/cli": "4.1.17",
+    "tailwindcss": "4.1.17"
+  }
+}

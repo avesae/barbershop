@@ -1,0 +1,182 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Fade & Blade — барбершоп на Покровке</title>
+  <meta name="description" content="Мужские стрижки, фейды и бритьё опасной бритвой. Онлайн-запись на сайте и в Telegram.">
+  <link rel="stylesheet" href="/assets/app.css">
+</head>
+<body>
+  <!-- Демо-полоска портфолио -->
+  <div class="bg-cream text-ink text-xs sm:text-sm">
+    <div class="mx-auto max-w-6xl px-4 py-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-center">
+      <span><b>Демо-проект</b> · Дизайн и разработка — Сандыга Иван</span>
+      <a class="underline decoration-ink/30 hover:decoration-ink" href="mailto:sandigavanya@mail.ru">sandigavanya@mail.ru</a>
+      <a class="underline decoration-ink/30 hover:decoration-ink" href="https://github.com/avesae" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+  <div class="stripe h-1.5"></div>
+
+  <header class="sticky top-0 z-30 border-b border-line/60 bg-ink/85 backdrop-blur">
+    <div class="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
+      <a href="/" class="font-display text-lg font-bold tracking-tight">Fade<span class="text-brass">&</span>Blade</a>
+      <nav class="hidden gap-8 text-sm text-mute md:flex">
+        <a href="#services" class="hover:text-cream">Услуги</a>
+        <a href="#masters" class="hover:text-cream">Мастера</a>
+        <a href="#contacts" class="hover:text-cream">Контакты</a>
+      </nav>
+      <button class="btn-brass !px-5 !py-2.5" data-book>Записаться</button>
+    </div>
+  </header>
+
+  <main>
+    <section class="relative overflow-hidden">
+      <div class="pointer-events-none absolute -right-40 top-10 h-[520px] w-[520px] rounded-full bg-brass/10 blur-3xl"></div>
+      <div class="mx-auto grid max-w-6xl gap-12 px-4 py-20 md:grid-cols-[1.3fr_1fr] md:py-28">
+        <div>
+          <p class="eyebrow mb-6">Барбершоп · Москва, Покровка</p>
+          <h1 class="font-display text-4xl font-bold leading-[1.05] tracking-tight sm:text-6xl">
+            Чёткий фейд.<br>Острая бритва.<br><span class="text-brass">Без очереди.</span>
+          </h1>
+          <p class="mt-6 max-w-md text-lg text-mute">
+            Классические мужские стрижки, борода и королевское бритьё. Свободное время видно сразу — запись занимает минуту.
+          </p>
+          <div class="mt-10 flex flex-wrap gap-3">
+            <button class="btn-brass" data-book>Записаться онлайн</button>
+            <a class="btn-ghost hidden" data-bot-link target="_blank" rel="noopener">Записаться в Telegram</a>
+          </div>
+        </div>
+        <div class="grid content-end gap-4 sm:grid-cols-3 md:grid-cols-1">
+          <div class="rounded-3xl border border-line bg-coal p-6">
+            <p class="font-display text-3xl font-bold text-brass">10–21</p>
+            <p class="mt-1 text-sm text-mute">Работаем без выходных</p>
+          </div>
+          <div class="rounded-3xl border border-line bg-coal p-6">
+            <p class="font-display text-3xl font-bold" data-count-masters>3</p>
+            <p class="mt-1 text-sm text-mute">Мастера с опытом от 5 лет</p>
+          </div>
+          <div class="rounded-3xl border border-line bg-coal p-6">
+            <p class="font-display text-3xl font-bold">24/7</p>
+            <p class="mt-1 text-sm text-mute">Онлайн-запись и напоминания</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="services" class="border-t border-line/60">
+      <div class="mx-auto max-w-6xl px-4 py-20">
+        <div class="mb-10 flex flex-wrap items-end justify-between gap-4">
+          <div>
+            <p class="eyebrow mb-3">Прайс</p>
+            <h2 class="font-display text-3xl font-bold sm:text-4xl">Услуги и цены</h2>
+          </div>
+          <p class="max-w-sm text-sm text-mute">Цена фиксированная: никаких «от» и доплат за густые волосы.</p>
+        </div>
+        <div id="services-list" class="divide-y divide-line/60 rounded-3xl border border-line bg-coal">
+          <p class="p-6 text-mute">Загружаем прайс…</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="masters" class="border-t border-line/60 bg-coal/40">
+      <div class="mx-auto max-w-6xl px-4 py-20">
+        <p class="eyebrow mb-3">Команда</p>
+        <h2 class="mb-10 font-display text-3xl font-bold sm:text-4xl">Мастера</h2>
+        <div id="masters-list" class="grid gap-5 md:grid-cols-3"></div>
+      </div>
+    </section>
+
+    <section class="border-t border-line/60">
+      <div class="mx-auto grid max-w-6xl gap-6 px-4 py-20 md:grid-cols-3">
+        <div class="md:col-span-1">
+          <p class="eyebrow mb-3">Как записаться</p>
+          <h2 class="font-display text-3xl font-bold">Четыре шага</h2>
+        </div>
+        <ol class="grid gap-4 sm:grid-cols-2 md:col-span-2">
+          <li class="rounded-3xl border border-line p-6"><span class="font-display text-brass">01</span><p class="mt-3 font-semibold">Услуга</p><p class="text-sm text-mute">Выберите из прайса</p></li>
+          <li class="rounded-3xl border border-line p-6"><span class="font-display text-brass">02</span><p class="mt-3 font-semibold">Мастер</p><p class="text-sm text-mute">Любой из команды</p></li>
+          <li class="rounded-3xl border border-line p-6"><span class="font-display text-brass">03</span><p class="mt-3 font-semibold">Дата и время</p><p class="text-sm text-mute">Видно только свободное</p></li>
+          <li class="rounded-3xl border border-line p-6"><span class="font-display text-brass">04</span><p class="mt-3 font-semibold">Напоминание</p><p class="text-sm text-mute">В Telegram за день и за 2 часа</p></li>
+        </ol>
+      </div>
+    </section>
+
+    <section id="contacts" class="border-t border-line/60 bg-coal/40">
+      <div class="mx-auto grid max-w-6xl gap-10 px-4 py-20 md:grid-cols-2">
+        <div>
+          <p class="eyebrow mb-3">Контакты</p>
+          <h2 class="font-display text-3xl font-bold" data-info="address">Москва, ул. Покровка, 17</h2>
+          <p class="mt-4 text-mute">Ежедневно с 10:00 до 21:00. Метро «Китай-город», 5 минут пешком.</p>
+          <a class="mt-6 inline-block font-display text-2xl text-brass hover:text-cream" data-info="phone" href="tel:+74950000000">+7 (495) 000-00-00</a>
+        </div>
+        <div class="flex flex-col justify-end gap-3 md:items-end">
+          <button class="btn-brass" data-book>Записаться онлайн</button>
+          <a class="btn-ghost hidden" data-bot-link target="_blank" rel="noopener">Открыть бота в Telegram</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="border-t border-line/60">
+    <div class="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-4 px-4 py-8 text-sm text-mute">
+      <p>© <span data-year></span> Fade & Blade. Вымышленный барбершоп для портфолио.</p>
+      <div class="flex gap-6">
+        <a href="/privacy.html" class="hover:text-cream">Политика конфиденциальности</a>
+        <a href="/privacy.html#consent" class="hover:text-cream">Согласие на обработку данных</a>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Окно записи -->
+  <dialog id="booking" class="m-auto w-[min(640px,calc(100%-2rem))] rounded-3xl border border-line bg-ink p-0 text-cream backdrop:bg-black/70 backdrop:backdrop-blur-sm">
+    <form method="dialog" class="flex items-center justify-between border-b border-line px-6 py-4">
+      <p class="font-display font-bold">Запись</p>
+      <button class="text-2xl leading-none text-mute hover:text-cream" aria-label="Закрыть">×</button>
+    </form>
+    <div class="max-h-[75vh] overflow-y-auto px-6 py-6">
+      <div id="step-form" class="space-y-6">
+        <div>
+          <p class="mb-3 text-sm text-mute">Услуга</p>
+          <div id="pick-service" class="flex flex-wrap gap-2"></div>
+        </div>
+        <div>
+          <p class="mb-3 text-sm text-mute">Мастер</p>
+          <div id="pick-master" class="flex flex-wrap gap-2"><span class="text-sm text-mute/60">Сначала выберите услугу</span></div>
+        </div>
+        <div>
+          <p class="mb-3 text-sm text-mute">Дата</p>
+          <div id="pick-date" class="flex flex-wrap gap-2"><span class="text-sm text-mute/60">Выберите мастера</span></div>
+        </div>
+        <div>
+          <p class="mb-3 text-sm text-mute">Время</p>
+          <div id="pick-time" class="flex flex-wrap gap-2"><span class="text-sm text-mute/60">Выберите дату</span></div>
+        </div>
+        <form id="contact-form" class="space-y-3 border-t border-line pt-6">
+          <div class="grid gap-3 sm:grid-cols-2">
+            <input class="field" name="name" placeholder="Имя" autocomplete="given-name" required maxlength="100">
+            <input class="field" name="phone" type="tel" placeholder="+7 900 000-00-00" autocomplete="tel" required>
+          </div>
+          <label class="flex gap-3 text-sm text-mute">
+            <input type="checkbox" name="consent" required class="mt-0.5 size-4 shrink-0 accent-[#c9a266]">
+            <span>Даю <a href="/privacy.html#consent" target="_blank" class="text-cream underline">согласие на обработку персональных данных</a> и принимаю <a href="/privacy.html" target="_blank" class="text-cream underline">политику конфиденциальности</a></span>
+          </label>
+          <p id="form-error" class="hidden rounded-xl bg-blood/20 px-4 py-3 text-sm text-cream"></p>
+          <button class="btn-brass w-full disabled:opacity-40" id="submit" disabled>Записаться</button>
+        </form>
+      </div>
+      <div id="step-done" class="hidden space-y-5 text-center">
+        <p class="font-display text-2xl font-bold">Вы записаны ✂️</p>
+        <p id="done-summary" class="whitespace-pre-line text-mute"></p>
+        <div id="done-bot" class="hidden rounded-2xl border border-brass/40 bg-brass/10 p-5">
+          <p class="mb-3 text-sm">Подключите Telegram, чтобы получать напоминания и переносить запись в пару нажатий</p>
+          <a id="done-bot-link" class="btn-brass" target="_blank" rel="noopener">Получать напоминания</a>
+        </div>
+        <form method="dialog"><button class="btn-ghost">Готово</button></form>
+      </div>
+    </div>
+  </dialog>
+
+  <script src="/js/site.js"></script>
+</body>
+</html>

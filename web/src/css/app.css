@@ -1,0 +1,61 @@
+@import "tailwindcss";
+@source "../";
+
+@font-face {
+  font-family: "Unbounded";
+  src: url("./fonts/unbounded-latin-wght-normal.woff2") format("woff2");
+  font-weight: 200 900;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+2000-206F, U+20AC, U+2116, U+2212;
+}
+@font-face {
+  font-family: "Unbounded";
+  src: url("./fonts/unbounded-cyrillic-wght-normal.woff2") format("woff2");
+  font-weight: 200 900;
+  font-display: swap;
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+20BD;
+}
+@font-face {
+  font-family: "Manrope";
+  src: url("./fonts/manrope-latin-wght-normal.woff2") format("woff2");
+  font-weight: 200 800;
+  font-display: swap;
+  unicode-range: U+0000-00FF, U+2000-206F, U+20AC, U+2116, U+2212;
+}
+@font-face {
+  font-family: "Manrope";
+  src: url("./fonts/manrope-cyrillic-wght-normal.woff2") format("woff2");
+  font-weight: 200 800;
+  font-display: swap;
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+20BD;
+}
+
+@theme {
+  --font-sans: "Manrope", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Unbounded", ui-sans-serif, system-ui, sans-serif;
+  --color-ink: #11100e;
+  --color-coal: #1a1816;
+  --color-smoke: #26231f;
+  --color-line: #3a3530;
+  --color-cream: #f2ebdf;
+  --color-mute: #a89f92;
+  --color-brass: #c9a266;
+  --color-brass-deep: #a57f45;
+  --color-blood: #b0412e;
+}
+
+@layer base {
+  html { scroll-behavior: smooth; }
+  body { @apply bg-ink text-cream font-sans antialiased; }
+  ::selection { @apply bg-brass text-ink; }
+}
+
+@layer components {
+  .btn-brass { @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold tracking-wide transition cursor-pointer bg-brass text-ink hover:bg-cream; }
+  .btn-ghost { @apply inline-flex items-center justify-center gap-2 rounded-full px-6 py-3 text-sm font-semibold tracking-wide transition cursor-pointer border border-line text-cream hover:border-brass hover:text-brass; }
+  .chip { @apply rounded-full border border-line px-4 py-2 text-sm transition hover:border-brass cursor-pointer select-none; }
+  .chip[aria-pressed="true"] { @apply border-brass bg-brass text-ink; }
+  .field { @apply w-full rounded-xl border border-line bg-coal px-4 py-3 text-cream placeholder:text-mute/60 outline-none focus:border-brass; }
+  .eyebrow { @apply text-xs font-semibold uppercase tracking-[0.3em] text-brass; }
+  .stripe { background: repeating-linear-gradient(-45deg, var(--color-blood) 0 14px, var(--color-cream) 14px 28px, #2c4a7a 28px 42px, var(--color-cream) 42px 56px); }
+}

@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="robots" content="noindex">
+  <title>Админка — Fade & Blade</title>
+  <link rel="stylesheet" href="/assets/app.css">
+</head>
+<body class="min-h-screen">
+  <div class="bg-cream text-ink text-xs">
+    <div class="mx-auto px-4 py-1.5 flex flex-wrap items-center justify-center gap-x-4 text-center">
+      <span><b>Демо-проект</b> · Дизайн и разработка — Сандыга Иван</span>
+      <a class="underline decoration-ink/30" href="mailto:sandigavanya@mail.ru">sandigavanya@mail.ru</a>
+      <a class="underline decoration-ink/30" href="https://github.com/avesae" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+
+  <!-- Вход -->
+  <section id="login" class="grid min-h-[80vh] place-items-center px-4">
+    <form id="login-form" class="w-full max-w-sm space-y-4 rounded-3xl border border-line bg-coal p-8">
+      <p class="font-display text-xl font-bold">Fade<span class="text-brass">&</span>Blade · админка</p>
+      <input class="field" name="user" placeholder="Логин" autocomplete="username" required>
+      <input class="field" name="password" type="password" placeholder="Пароль" autocomplete="current-password" required>
+      <p id="login-error" class="hidden text-sm text-blood">Неверный логин или пароль</p>
+      <button class="btn-brass w-full">Войти</button>
+    </form>
+  </section>
+
+  <!-- Панель -->
+  <div id="app" class="hidden">
+    <header class="border-b border-line bg-coal">
+      <div class="mx-auto flex max-w-7xl flex-wrap items-center gap-x-6 gap-y-3 px-4 py-3">
+        <a href="/" class="font-display font-bold">Fade<span class="text-brass">&</span>Blade</a>
+        <nav id="tabs" class="flex flex-wrap gap-1 text-sm">
+          <button data-tab="schedule" class="tab">Расписание</button>
+          <button data-tab="bookings" class="tab">Записи</button>
+          <button data-tab="timeoff" class="tab">Закрыть время</button>
+          <button data-tab="services" class="tab">Услуги и цены</button>
+          <button data-tab="stats" class="tab">Статистика</button>
+        </nav>
+        <button id="logout" class="ml-auto text-sm text-mute hover:text-cream">Выйти</button>
+      </div>
+    </header>
+
+    <main class="mx-auto max-w-7xl px-4 py-8">
+      <!-- Расписание -->
+      <section data-panel="schedule" class="hidden">
+        <div class="mb-6 flex flex-wrap items-center gap-3">
+          <h1 class="mr-4 font-display text-2xl font-bold">Расписание</h1>
+          <div class="flex rounded-full border border-line p-1 text-sm">
+            <button class="seg rounded-full px-4 py-1.5" data-view="day">День</button>
+            <button class="seg rounded-full px-4 py-1.5" data-view="week">Неделя</button>
+          </div>
+          <button class="btn-ghost !px-3 !py-1.5" id="prev">←</button>
+          <input type="date" id="sched-date" class="field !w-auto !py-1.5">
+          <button class="btn-ghost !px-3 !py-1.5" id="next">→</button>
+          <button class="btn-ghost !px-4 !py-1.5" id="today">Сегодня</button>
+        </div>
+        <div id="schedule" class="overflow-x-auto"></div>
+      </section>
+
+      <!-- Записи -->
+      <section data-panel="bookings" class="hidden">
+        <div class="mb-6 flex flex-wrap items-end gap-3">
+          <h1 class="mr-4 font-display text-2xl font-bold">Записи</h1>
+          <label class="text-xs text-mute">С<input type="date" id="b-from" class="field mt-1 !py-1.5"></label>
+          <label class="text-xs text-mute">По<input type="date" id="b-to" class="field mt-1 !py-1.5"></label>
+          <label class="text-xs text-mute">Статус
+            <select id="b-status" class="field mt-1 !py-1.5">
+              <option value="">Все</option>
+              <option value="active">Активные</option>
+              <option value="cancelled">Отменённые</option>
+            </select>
+          </label>
+        </div>
+        <div class="overflow-x-auto rounded-2xl border border-line">
+          <table class="w-full text-sm">
+            <thead class="bg-coal text-left text-xs uppercase tracking-wider text-mute">
+              <tr><th class="p-3">Когда</th><th class="p-3">Мастер</th><th class="p-3">Услуга</th><th class="p-3">Клиент</th><th class="p-3">Источник</th><th class="p-3 text-right">Цена</th><th class="p-3"></th></tr>
+            </thead>
+            <tbody id="bookings-body" class="divide-y divide-line"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Закрытое время -->
+      <section data-panel="timeoff" class="hidden">
+        <h1 class="mb-6 font-display text-2xl font-bold">Закрыть время</h1>
+        <div class="grid gap-8 lg:grid-cols-[380px_1fr]">
+          <form id="timeoff-form" class="space-y-3 rounded-3xl border border-line bg-coal p-6">
+            <select name="master_id" class="field" required></select>
+            <input type="date" name="day" class="field" required>
+            <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="whole" class="accent-[#c9a266]"> Весь день (выходной)</label>
+            <div class="grid grid-cols-2 gap-3" id="timeoff-times">
+              <input type="time" name="start" class="field" value="14:00" step="900">
+              <input type="time" name="end" class="field" value="15:00" step="900">
+            </div>
+            <input name="reason" class="field" placeholder="Причина: обед, выходной…" maxlength="100">
+            <p id="timeoff-error" class="hidden text-sm text-blood"></p>
+            <button class="btn-brass w-full">Закрыть</button>
+          </form>
+          <div id="timeoff-list" class="space-y-2"></div>
+        </div>
+      </section>
+
+      <!-- Услуги -->
+      <section data-panel="services" class="hidden">
+        <div class="mb-6 flex items-center justify-between">
+          <h1 class="font-display text-2xl font-bold">Услуги и цены</h1>
+          <button id="add-service" class="btn-brass !py-2">+ Добавить услугу</button>
+        </div>
+        <div id="services-body" class="grid gap-3"></div>
+      </section>
+
+      <!-- Статистика -->
+      <section data-panel="stats" class="hidden">
+        <h1 class="mb-6 font-display text-2xl font-bold">Статистика</h1>
+        <div id="stats-kpi" class="mb-8 grid gap-4 sm:grid-cols-3"></div>
+        <div class="grid gap-6 lg:grid-cols-2">
+          <div class="rounded-3xl border border-line bg-coal p-6">
+            <p class="mb-1 font-semibold">Записи за неделю</p>
+            <p class="mb-6 text-xs text-mute">По дню визита, без отменённых</p>
+            <div id="stats-week" class="flex h-56 items-end gap-3"></div>
+          </div>
+          <div class="rounded-3xl border border-line bg-coal p-6">
+            <p class="mb-1 font-semibold">Популярность услуг</p>
+            <p class="mb-6 text-xs text-mute">За 30 дней</p>
+            <div id="stats-services" class="space-y-3"></div>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Редактор услуги -->
+  <dialog id="service-dialog" class="m-auto w-[min(520px,calc(100%-2rem))] rounded-3xl border border-line bg-ink p-0 text-cream backdrop:bg-black/70">
+    <form id="service-form" class="space-y-3 p-6">
+      <p class="font-display text-lg font-bold" id="service-title">Услуга</p>
+      <input name="name" class="field" placeholder="Название" required maxlength="100">
+      <textarea name="description" class="field" rows="2" placeholder="Описание"></textarea>
+      <div class="grid grid-cols-2 gap-3">
+        <label class="text-xs text-mute">Цена, ₽<input name="price" type="number" min="0" step="50" class="field mt-1" required></label>
+        <label class="text-xs text-mute">Длительность, мин<input name="duration_min" type="number" min="15" max="480" step="15" class="field mt-1" required></label>
+      </div>
+      <div>
+        <p class="mb-2 text-xs text-mute">Мастера</p>
+        <div id="service-masters" class="flex flex-wrap gap-3 text-sm"></div>
+      </div>
+      <label class="flex items-center gap-2 text-sm"><input type="checkbox" name="is_active" class="accent-[#c9a266]"> Показывать на сайте и в боте</label>
+      <p id="service-error" class="hidden text-sm text-blood"></p>
+      <div class="flex justify-end gap-2 pt-2">
+        <button type="button" class="btn-ghost !py-2" onclick="this.closest('dialog').close()">Отмена</button>
+        <button class="btn-brass !py-2">Сохранить</button>
+      </div>
+    </form>
+  </dialog>
+
+  <style>
+    .tab { padding: .4rem .9rem; border-radius: 999px; color: var(--color-mute); }
+    .tab:hover { color: var(--color-cream); }
+    .tab[aria-current="page"], .seg[aria-pressed="true"] { background: var(--color-brass); color: var(--color-ink); }
+  </style>
+  <script src="/js/admin.js"></script>
+</body>
+</html>

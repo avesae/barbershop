@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Политика конфиденциальности — Fade & Blade</title>
+  <link rel="stylesheet" href="/assets/app.css">
+</head>
+<body>
+  <div class="bg-cream text-ink text-xs sm:text-sm">
+    <div class="mx-auto max-w-6xl px-4 py-2 flex flex-wrap items-center justify-center gap-x-4 gap-y-1 text-center">
+      <span><b>Демо-проект</b> · Дизайн и разработка — Сандыга Иван</span>
+      <a class="underline decoration-ink/30 hover:decoration-ink" href="mailto:sandigavanya@mail.ru">sandigavanya@mail.ru</a>
+      <a class="underline decoration-ink/30 hover:decoration-ink" href="https://github.com/avesae" target="_blank" rel="noopener">GitHub</a>
+    </div>
+  </div>
+  <div class="stripe h-1.5"></div>
+
+  <header class="border-b border-line/60">
+    <div class="mx-auto flex max-w-3xl items-center justify-between px-4 py-4">
+      <a href="/" class="font-display text-lg font-bold tracking-tight">Fade<span class="text-brass">&</span>Blade</a>
+      <a href="/" class="text-sm text-mute hover:text-cream">← На главную</a>
+    </div>
+  </header>
+
+  <main class="mx-auto max-w-3xl px-4 py-16 leading-relaxed text-cream/90 [&_h2]:mt-12 [&_h2]:mb-4 [&_h2]:font-display [&_h2]:text-xl [&_h2]:font-bold [&_h2]:text-cream [&_li]:ml-5 [&_li]:list-disc [&_p]:mb-4 [&_ul]:mb-4 [&_ul]:space-y-1">
+    <p class="eyebrow mb-4">Редакция 1.0 · действует с 4 ноября 2026</p>
+    <h1 class="font-display text-3xl font-bold sm:text-4xl">Политика конфиденциальности</h1>
+    <p class="mt-6 text-mute">Документ описывает, как барбершоп «Fade & Blade» (далее — Оператор) обрабатывает персональные данные клиентов по Федеральному закону № 152-ФЗ «О персональных данных».</p>
+
+    <h2>1. Какие данные мы обрабатываем</h2>
+    <ul>
+      <li>имя;</li>
+      <li>номер телефона;</li>
+      <li>идентификатор пользователя Telegram, если вы записываетесь через бота;</li>
+      <li>сведения о записи: услуга, мастер, дата и время визита.</li>
+    </ul>
+    <p>Мы не собираем паспортные данные, адрес, платёжные реквизиты и не используем сторонние счётчики посещений на сайте.</p>
+
+    <h2>2. Цели обработки</h2>
+    <ul>
+      <li>запись на услуги, её перенос и отмена;</li>
+      <li>напоминания о визите в Telegram за сутки и за 2 часа;</li>
+      <li>связь с клиентом по вопросам записи.</li>
+    </ul>
+
+    <h2>3. Правовое основание</h2>
+    <p>Согласие субъекта персональных данных (п. 1 ч. 1 ст. 6 152-ФЗ). Согласие даётся отметкой в форме записи на сайте или кнопкой «Согласен» в Telegram-боте до того, как мы запрашиваем имя и телефон. Для каждого согласия сохраняются дата, время и версия текста.</p>
+
+    <h2>4. Где и как хранятся данные</h2>
+    <p>Данные хранятся в базе данных на сервере Оператора, расположенном на территории Российской Федерации (ч. 5 ст. 18 152-ФЗ). Данные не передаются третьим лицам, в том числе в облачные таблицы и CRM иностранных сервисов. Доступ к ним есть только у администратора барбершопа.</p>
+    <p>Сообщения в Telegram (подтверждения и напоминания) отправляются через Telegram Bot API; в них содержатся только сведения о самой записи.</p>
+
+    <h2>5. Сроки хранения</h2>
+    <p>Данные хранятся до отзыва согласия. После отзыва имя, телефон и Telegram ID удаляются, будущие записи отменяются, а прошедшие визиты остаются в обезличенном виде для статистики загрузки.</p>
+
+    <h2>6. Ваши права</h2>
+    <ul>
+      <li>узнать, какие данные о вас хранятся;</li>
+      <li>потребовать уточнить или удалить их;</li>
+      <li>отозвать согласие в любой момент.</li>
+    </ul>
+    <p>Удалить данные можно самостоятельно — кнопкой «🗑 Удалить мои данные» или командой /delete_me в Telegram-боте. Также можно написать на <a class="text-brass underline" href="mailto:privacy@fadeandblade.example">privacy@fadeandblade.example</a>: запрос исполняется в течение 10 рабочих дней.</p>
+
+    <h2 id="consent">7. Текст согласия на обработку персональных данных</h2>
+    <div class="rounded-3xl border border-line bg-coal p-6">
+      <p id="consent-text" class="!mb-0 whitespace-pre-line text-sm">Записываясь, вы даёте согласие барбершопу «Fade & Blade» на обработку персональных данных: имени, номера телефона и Telegram ID.</p>
+    </div>
+  </main>
+
+  <footer class="border-t border-line/60">
+    <div class="mx-auto max-w-3xl px-4 py-8 text-sm text-mute">© Fade & Blade. Вымышленный барбершоп для портфолио.</div>
+  </footer>
+  <script>
+    // Текст согласия берётся из API — тот же, что показывает бот, с актуальной версией.
+    fetch("/api/info").then((r) => r.json()).then((info) => {
+      document.getElementById("consent-text").textContent = info.consent_text;
+    }).catch(() => {});
+  </script>
+</body>
+</html>
