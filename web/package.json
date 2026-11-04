@@ -10,5 +10,7 @@
     "@fontsource-variable/unbounded": "5.2.8",
     "@tailwindcss/cli": "4.1.17",
     "tailwindcss": "4.1.17"
-  }
+  },
+  "license": "UNLICENSED",
+  "author": "Сандыга Иван <sandigavanya@mail.ru> (https://github.com/avesae)"
 }
