@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="robots" content="noindex">
+  <title>Запись — Fade & Blade</title>
+  <link rel="stylesheet" href="/assets/app.css">
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+</head>
+<body class="pb-28">
+  <header class="px-4 pt-5 pb-3">
+    <p class="font-display text-lg font-bold">Fade<span class="text-brass">&</span>Blade</p>
+    <p class="text-sm text-mute">Онлайн-запись</p>
+  </header>
+
+  <div id="outside" class="hidden mx-4 rounded-2xl border border-line bg-coal p-5 text-sm">
+    Это приложение открывается из Telegram-бота. На компьютере можно <a href="/" class="text-brass underline">записаться на сайте</a>.
+  </div>
+
+  <main id="flow" class="space-y-7 px-4">
+    <section>
+      <p class="mb-3 text-xs font-semibold uppercase tracking-widest text-mute">Услуга</p>
+      <div id="services" class="grid gap-2"></div>
+    </section>
+    <section>
+      <p class="mb-3 text-xs font-semibold uppercase tracking-widest text-mute">Мастер</p>
+      <div id="masters" class="grid grid-cols-3 gap-2"><p class="col-span-3 text-sm text-mute/60">Сначала выберите услугу</p></div>
+    </section>
+    <section>
+      <p class="mb-3 text-xs font-semibold uppercase tracking-widest text-mute">Дата</p>
+      <div id="dates" class="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 [scrollbar-width:none]"><p class="text-sm text-mute/60">Выберите мастера</p></div>
+    </section>
+    <section>
+      <p class="mb-3 text-xs font-semibold uppercase tracking-widest text-mute">Время</p>
+      <div id="times" class="grid grid-cols-4 gap-2"><p class="col-span-4 text-sm text-mute/60">Выберите дату</p></div>
+    </section>
+    <section id="contacts" class="space-y-3">
+      <p class="text-xs font-semibold uppercase tracking-widest text-mute">Контакты</p>
+      <input id="name" class="field" placeholder="Имя" autocomplete="given-name" maxlength="100">
+      <input id="phone" class="field" type="tel" placeholder="+7 900 000-00-00" autocomplete="tel">
+      <label id="consent-box" class="hidden flex gap-3 rounded-2xl border border-line bg-coal p-4 text-sm text-mute">
+        <input id="consent" type="checkbox" class="mt-0.5 size-4 shrink-0 accent-[#c9a266]">
+        <span>Даю согласие на обработку персональных данных.
+          <button type="button" id="consent-toggle" class="text-cream underline">Текст согласия</button>
+          <span id="consent-text" class="mt-2 hidden whitespace-pre-line text-xs"></span>
+        </span>
+      </label>
+      <p id="error" class="hidden rounded-xl bg-blood/20 px-4 py-3 text-sm"></p>
+    </section>
+  </main>
+
+  <section id="done" class="hidden px-4 py-16 text-center">
+    <p class="text-5xl">✂️</p>
+    <p class="mt-4 font-display text-2xl font-bold">Вы записаны</p>
+    <p id="done-summary" class="mt-3 whitespace-pre-line text-mute"></p>
+    <p class="mt-6 text-sm text-mute">Подтверждение и напоминания придут в чат с ботом.</p>
+  </section>
+
+  <!-- Запасная кнопка, если MainButton недоступна (старый клиент Telegram) -->
+  <div id="fallback" class="fixed inset-x-0 bottom-0 hidden border-t border-line bg-ink/95 p-4 backdrop-blur">
+    <button id="fallback-btn" class="btn-brass w-full disabled:opacity-40" disabled>Записаться</button>
+  </div>
+
+  <script src="/js/app.js"></script>
+</body>
+</html>

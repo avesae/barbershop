@@ -7,7 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from . import db
 from .config import get_settings
 from .media import upload_dir
-from .routers import admin, admin_clients, admin_masters, admin_reviews, public
+from .routers import admin, admin_clients, admin_masters, admin_reviews, public, tg_app
 from .seed import seed
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -23,6 +23,7 @@ async def lifespan(_: FastAPI):
 
 app = FastAPI(title="Fade & Blade API", lifespan=lifespan, docs_url="/api/docs", openapi_url="/api/openapi.json")
 app.include_router(public.router)
+app.include_router(tg_app.router)
 app.include_router(admin.router)
 app.include_router(admin_masters.router)
 app.include_router(admin_clients.router)

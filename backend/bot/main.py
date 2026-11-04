@@ -3,7 +3,7 @@ import logging
 
 from aiogram import Bot, Dispatcher
 from aiogram.exceptions import TelegramAPIError, TelegramForbiddenError
-from aiogram.types import BotCommand
+from aiogram.types import BotCommand, MenuButtonWebApp, WebAppInfo
 
 from app import booking as bk
 from app import db
@@ -74,6 +74,14 @@ async def main() -> None:
             BotCommand(command="cancel", description="Отменить действие"),
         ]
     )
+    site = get_settings().site_url.rstrip("/")
+    if site.startswith("https://"):
+        # Telegram открывает Mini App только по HTTPS.
+        await bot.set_chat_menu_button(
+            menu_button=MenuButtonWebApp(text="Записаться", web_app=WebAppInfo(url=f"{site}/app/"))
+        )
+    else:
+        log.info("SITE_URL без https — кнопка Mini App в меню бота не включена")
     reminders = asyncio.create_task(reminder_loop(bot))
     try:
         await dp.start_polling(bot)
