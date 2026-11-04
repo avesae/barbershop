@@ -2,7 +2,8 @@
   "name": "fade-and-blade-web",
   "private": true,
   "scripts": {
-    "build": "node build.mjs"
+    "build": "node build.mjs",
+    "build:static": "STATIC_DEMO=1 node build.mjs"
   },
   "devDependencies": {
     "@fontsource-variable/manrope": "5.2.8",

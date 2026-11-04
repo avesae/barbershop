@@ -9,3 +9,5 @@ web/dist/
 .DS_Store
 backend/uploads/
 backups/
+dist-static/
+.vercel/
