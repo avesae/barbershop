@@ -40,6 +40,7 @@
           <button data-tab="masters" class="tab">Мастера</button>
           <button data-tab="services" class="tab">Услуги и цены</button>
           <button data-tab="works" class="tab">Галерея</button>
+          <button data-tab="reviews" class="tab">Отзывы</button>
           <button data-tab="stats" class="tab">Статистика</button>
         </nav>
         <button id="logout" class="ml-auto text-sm text-mute hover:text-cream">Выйти</button>
@@ -145,6 +146,15 @@
         </div>
         <p id="work-error" class="mb-4 hidden text-sm text-blood"></p>
         <div id="works-body" class="grid grid-cols-2 gap-4 md:grid-cols-4"></div>
+      </section>
+
+      <!-- Отзывы -->
+      <section data-panel="reviews" class="hidden">
+        <div class="mb-6 flex flex-wrap items-end justify-between gap-3">
+          <h1 class="font-display text-2xl font-bold">Отзывы</h1>
+          <p class="text-sm text-mute">Бот спрашивает оценку через 3 часа после визита. На сайт попадают только одобренные.</p>
+        </div>
+        <div id="reviews-body" class="grid gap-3"></div>
       </section>
 
       <!-- Услуги -->

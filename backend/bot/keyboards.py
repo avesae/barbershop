@@ -59,11 +59,13 @@ def short_date(d: date) -> str:
     return f"{WEEKDAYS[d.weekday()]}, {d.day} {MONTHS[d.month - 1][:3]}"
 
 
-def dates(items: list[date]) -> InlineKeyboardMarkup:
+def dates(items: list[date], waitlist: bool = True) -> InlineKeyboardMarkup:
     kb = InlineKeyboardBuilder()
     for d in items:
         kb.button(text=short_date(d), callback_data=f"day:{d.isoformat()}")
     kb.adjust(3)
+    if waitlist:
+        kb.row(InlineKeyboardButton(text="📝 Нет удобного дня — в лист ожидания", callback_data="wl:pick"))
     kb.row(ABORT)
     return kb.as_markup()
 
@@ -116,3 +118,82 @@ def confirm_delete() -> InlineKeyboardMarkup:
             [InlineKeyboardButton(text="Нет", callback_data="abort")],
         ]
     )
+
+
+# --- кабинет мастера -------------------------------------------------------
+
+M_TODAY = "📅 Сегодня"
+M_TOMORROW = "📅 Завтра"
+M_CLOSE = "⛔ Закрыть время"
+
+
+def master_menu() -> ReplyKeyboardMarkup:
+    return ReplyKeyboardMarkup(
+        keyboard=[[KeyboardButton(text=M_TODAY), KeyboardButton(text=M_TOMORROW)], [KeyboardButton(text=M_CLOSE)]],
+        resize_keyboard=True,
+    )
+
+
+def master_day(bookings: list[Booking], now: datetime) -> InlineKeyboardMarkup | None:
+    kb = InlineKeyboardBuilder()
+    for b in bookings:
+        if b.start_at > now:
+            continue
+        t = b.start_at.strftime("%H:%M")
+        mark = {"done": "✅ ", "no_show": "🚫 "}.get(b.status, "")
+        kb.row(
+            InlineKeyboardButton(text=f"{mark}{t} пришёл", callback_data=f"ms:{b.id}:done"),
+            InlineKeyboardButton(text=f"{t} не пришёл", callback_data=f"ms:{b.id}:no_show"),
+        )
+    return kb.as_markup() if kb.export() else None
+
+
+def master_close_days(days: list[date]) -> InlineKeyboardMarkup:
+    kb = InlineKeyboardBuilder()
+    for d in days:
+        kb.button(text=short_date(d), callback_data=f"mo:{d.isoformat()}")
+    kb.adjust(3)
+    kb.row(ABORT)
+    return kb.as_markup()
+
+
+def master_close_range() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[[InlineKeyboardButton(text="Весь день", callback_data="mo:all")], [ABORT]]
+    )
+
+
+# --- отзывы, повторная запись, лист ожидания -------------------------------
+
+
+def stars(booking_id: int) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[[InlineKeyboardButton(text="★" * n, callback_data=f"rv:{booking_id}:{n}") for n in range(1, 6)]]
+    )
+
+
+def skip() -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(inline_keyboard=[[InlineKeyboardButton(text="Пропустить", callback_data="rvskip")]])
+
+
+def rebook(booking_id: int) -> InlineKeyboardMarkup:
+    return InlineKeyboardMarkup(
+        inline_keyboard=[[InlineKeyboardButton(text="🗓 Выбрать время", callback_data=f"rb:{booking_id}")]]
+    )
+
+
+def waitlist_days(days: list[date]) -> InlineKeyboardMarkup:
+    kb = InlineKeyboardBuilder()
+    for d in days:
+        kb.button(text=short_date(d), callback_data=f"wl:{d.isoformat()}")
+    kb.adjust(3)
+    kb.row(ABORT)
+    return kb.as_markup()
+
+
+def waitlist_offer(master_id: int, service_id: int, slots: list[datetime]) -> InlineKeyboardMarkup:
+    kb = InlineKeyboardBuilder()
+    for t in slots[:12]:
+        kb.button(text=t.strftime("%H:%M"), callback_data=f"wlt:{master_id}:{service_id}:{t.isoformat(timespec='minutes')}")
+    kb.adjust(4)
+    return kb.as_markup()

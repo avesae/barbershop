@@ -97,7 +97,7 @@ async function start() {
 
 const loaders = {
   schedule: loadSchedule, bookings: loadBookings, clients: loadClients, timeoff: loadTimeOff,
-  masters: loadMasters, services: loadServices, works: loadWorks, stats: loadStats,
+  masters: loadMasters, services: loadServices, works: loadWorks, reviews: loadReviews, stats: loadStats,
 };
 
 function openTab(name) {
@@ -407,6 +407,30 @@ async function saveWork(event) {
     err.textContent = e.message;
     err.classList.remove("hidden");
   }
+}
+
+// --- отзывы ----------------------------------------------------------------
+
+async function loadReviews() {
+  const items = await api("/reviews");
+  $("#reviews-body").replaceChildren(...(items.length ? items.map((r) => {
+    const low = r.rating <= 3;
+    const toggle = el("button", {
+      class: r.published ? "btn-ghost !px-4 !py-1.5" : "btn-brass !px-4 !py-1.5",
+      ...(r.text ? {} : { disabled: "", title: "Без текста публиковать нечего" }),
+      onclick: async () => { await api(`/reviews/${r.id}`, { method: "PUT", body: JSON.stringify({ published: !r.published }) }); loadReviews(); },
+    }, r.published ? "Снять с сайта" : "Опубликовать");
+    return el("div", { class: `flex flex-wrap items-start gap-4 rounded-2xl border bg-coal px-5 py-4 ${low ? "border-blood/60" : "border-line"}` },
+      el("div", { class: "min-w-60 flex-1" },
+        el("p", { class: low ? "text-blood" : "text-brass" }, "★".repeat(r.rating) + "☆".repeat(5 - r.rating),
+          el("span", { class: "ml-3 text-xs text-mute" }, `${fmtDate(r.created_at)} · ${r.author} · ${r.master} · ${r.service}`)),
+        el("p", { class: `mt-2 ${r.text ? "" : "text-mute"}` }, r.text || "Без комментария"),
+        r.client_id ? el("button", { class: "mt-2 text-xs text-mute hover:text-cream", onclick: () => openClient(r.client_id) }, "Карточка клиента →") : null),
+      r.published ? el("span", { class: "rounded-full bg-brass/15 px-3 py-1 text-xs text-brass" }, "на сайте") : null,
+      el("div", { class: "flex items-center gap-3" }, low ? null : toggle,
+        el("button", { class: "text-sm text-mute hover:text-blood", onclick: async () => { if (confirm("Удалить отзыв?")) { await api(`/reviews/${r.id}`, { method: "DELETE" }); loadReviews(); } } }, "Удалить")),
+    );
+  }) : [el("p", { class: "text-mute" }, "Отзывов пока нет")]));
 }
 
 // --- закрытое время --------------------------------------------------------

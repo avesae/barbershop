@@ -91,3 +91,28 @@ async def test_visit_status_and_client_card(client, monkeypatch):
     assert stats["summary"]["no_show"] == 1 and stats["summary"]["no_show_rate"] == 100.0
     artem = next(m for m in stats["masters"] if m["name"] == "Артём")
     assert artem["load"] > 0
+
+
+async def test_review_moderation(client):
+    from datetime import timedelta
+
+    from app import engagement as eg
+    from app.models import Booking
+
+    async with db.SessionLocal() as s:
+        c = await bk.get_or_create_phone_client(s, "Иван", "+79001112233")
+        b = Booking(client_id=c.id, master_id=1, service_id=1, start_at=NOW - timedelta(days=1),
+                    end_at=NOW - timedelta(hours=23), price=1800, status="done", source="site")
+        s.add(b)
+        await s.commit()
+        r = await eg.save_rating(s, b, 5)
+
+    assert (await client.put(f"/api/admin/reviews/{r.id}", json={"published": True})).status_code == 400
+    async with db.SessionLocal() as s:
+        await eg.save_review_text(s, r.id, "Отлично!")
+    assert (await client.get("/api/reviews")).json() == []
+    assert (await client.put(f"/api/admin/reviews/{r.id}", json={"published": True})).json()["published"]
+    [pub] = (await client.get("/api/reviews")).json()
+    assert (pub["author"], pub["rating"], pub["master"]) == ("Иван", 5, "Артём")
+    assert (await client.delete(f"/api/admin/reviews/{r.id}")).status_code == 204
+    assert (await client.get("/api/reviews")).json() == []

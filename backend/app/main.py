@@ -7,7 +7,7 @@ from fastapi.staticfiles import StaticFiles
 from . import db
 from .config import get_settings
 from .media import upload_dir
-from .routers import admin, admin_clients, admin_masters, public
+from .routers import admin, admin_clients, admin_masters, admin_reviews, public
 from .seed import seed
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(name)s: %(message)s")
@@ -26,6 +26,7 @@ app.include_router(public.router)
 app.include_router(admin.router)
 app.include_router(admin_masters.router)
 app.include_router(admin_clients.router)
+app.include_router(admin_reviews.router)
 app.mount("/uploads", StaticFiles(directory=upload_dir()), name="uploads")
 
 if static_dir := get_settings().static_dir:

@@ -13,6 +13,7 @@ from app import booking as bk
 from app import db
 from app.models import Booking, Client, Consent
 from bot.handlers import router
+from bot.master import router as master_router
 from bot.main import send_reminders
 
 from .conftest import NOW
@@ -46,34 +47,38 @@ class FakeSession(BaseSession):
 
 
 class Harness:
-    def __init__(self) -> None:
+    def __init__(self, user: User = USER) -> None:
+        self.user = user
+        self.chat = Chat(id=user.id, type="private")
         self.session = FakeSession()
         self.bot = Bot("123456:" + "A" * 35, session=self.session)
         self.dp = Dispatcher()
+        self.dp.include_router(master_router)
         self.dp.include_router(router)
         self.n = 0
 
     def _msg(self, **kw) -> Message:
         self.n += 1
-        return Message(message_id=self.n, date=NOW, chat=CHAT, from_user=USER, **kw)
+        return Message(message_id=self.n, date=NOW, chat=self.chat, from_user=self.user, **kw)
 
     async def text(self, text: str) -> None:
         await self.dp.feed_update(self.bot, Update(update_id=self.n, message=self._msg(text=text)))
 
     async def contact(self, phone: str) -> None:
-        contact = Contact(phone_number=phone, first_name="Иван", user_id=USER.id)
+        contact = Contact(phone_number=phone, first_name="Иван", user_id=self.user.id)
         await self.dp.feed_update(self.bot, Update(update_id=self.n, message=self._msg(contact=contact)))
 
     async def click(self, data: str) -> None:
-        call = CallbackQuery(id=str(self.n), from_user=USER, chat_instance="ci", data=data, message=self._msg(text="…"))
+        call = CallbackQuery(id=str(self.n), from_user=self.user, chat_instance="ci", data=data, message=self._msg(text="…"))
         await self.dp.feed_update(self.bot, Update(update_id=self.n, callback_query=call))
 
     def last(self) -> str:
         return self.session.texts()[-1]
 
     def detach(self) -> None:
-        # Глобальный router можно подключить только к одному диспетчеру.
+        # Глобальные роутеры можно подключить только к одному диспетчеру.
         router._parent_router = None
+        master_router._parent_router = None
 
 
 async def bookings():

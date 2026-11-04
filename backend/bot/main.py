@@ -11,7 +11,9 @@ from app.config import get_settings
 from app.notify import booking_summary
 
 from . import keyboards as kb
+from . import jobs
 from .handlers import router
+from .master import router as master_router
 
 log = logging.getLogger("bot")
 
@@ -39,13 +41,16 @@ async def send_reminders(bot: Bot) -> int:
 
 
 async def reminder_loop(bot: Bot) -> None:
+    """Фоновые задачи раз в минуту: напоминания, отзывы, повторная запись, лист ожидания."""
     interval = get_settings().reminder_check_sec
+    tasks = [send_reminders, jobs.ask_reviews, jobs.offer_rebooking, jobs.notify_waitlist]
     while True:
-        try:
-            if n := await send_reminders(bot):
-                log.info("Отправлено напоминаний: %s", n)
-        except Exception:
-            log.exception("Ошибка в цикле напоминаний")
+        for task in tasks:
+            try:
+                if n := await task(bot):
+                    log.info("%s: отправлено %s", task.__name__, n)
+            except Exception:
+                log.exception("Ошибка в фоновой задаче %s", task.__name__)
         await asyncio.sleep(interval)
 
 
@@ -59,6 +64,7 @@ async def main() -> None:
 
     bot = Bot(token)
     dp = Dispatcher()
+    dp.include_router(master_router)  # раньше клиентского: у мастера своё меню
     dp.include_router(router)
     await bot.set_my_commands(
         [

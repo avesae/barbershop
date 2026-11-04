@@ -52,4 +52,8 @@ async def send(chat_id: int | str, text: str) -> bool:
 
 
 async def notify_owner(event: str, b: Booking) -> None:
-    await send(get_settings().admin_chat_id, owner_text(event, b))
+    """Владельцу и самому мастеру, если он подключил кабинет в боте."""
+    text = owner_text(event, b)
+    await send(get_settings().admin_chat_id, text)
+    if b.master and b.master.tg_user_id and str(b.master.tg_user_id) != str(get_settings().admin_chat_id):
+        await send(b.master.tg_user_id, text)
